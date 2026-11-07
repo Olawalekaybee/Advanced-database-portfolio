@@ -1,0 +1,9 @@
+# Never commit credentials
+.env
+.env.*
+*password*
+*credentials*
+*connection-string*
+Neo4j-*.txt
+*.pem
+*.key
