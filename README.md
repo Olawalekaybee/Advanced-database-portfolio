@@ -68,7 +68,42 @@ This portfolio models the AOWLYF Dynamics Energy Services database in PostgreSQL
 
 ### Portfolio 2: Query processing and optimisation
 
-[to be completed]
+**Folder:** `portfolio-2-query-optimisation`
+
+This portfolio shows how an index changes the way PostgreSQL runs a query. It builds a separate table, `reading_big`, with 500,000 meter readings (50 meters, one reading every 15 minutes) and compares four query plans using `EXPLAIN (ANALYZE, BUFFERS)`. The Portfolio 1 tables are not touched.
+
+#### Files
+
+| File | What it contains |
+|---|---|
+| `01_index_demo.sql` | Builds `reading_big`, then runs the four plans |
+| `query-analysis.md` | The results and my explanation of them |
+| `screenshots/` | The four query plans |
+
+#### What was tested
+
+| Situation | Query plan | Execution time |
+|---|---|---|
+| Without an index | Parallel Seq Scan | 208.864 ms |
+| Composite index on `(meter_id, recorded_at)` | Index Scan | 0.573 ms |
+| Filter written as `date(recorded_at) = ...` | Bitmap Heap Scan | 4.394 ms |
+| Same day written as a date range | Index Scan | 0.102 ms |
+
+#### How to run
+
+From the repository root, connect with `psql -U postgres -d aowlyf_energy`, then run `\pset pager off` followed by `\i portfolio-2-query-optimisation/01_index_demo.sql`.
+
+#### Limits
+
+- Each plan was run once on one machine, so the exact times will differ elsewhere. The pattern is what matters.
+- The data is generated and evenly spread, not real meter data.
+
+#### Evidence
+
+- `screenshots/plan-before-index.png`
+- `screenshots/plan-after-index.png`
+- `screenshots/plan-function.png`
+- `screenshots/plan-range.png`
 
 ### Portfolio 3: Transactions and concurrency
 
@@ -174,6 +209,7 @@ Load `schema.sql` and `sample-data.sql` from `portfolio-1-database-design`, conn
 **What it was used for so far:**
 - Explaining course concepts (database design, normalisation, transactions, distributed databases) as a study aid.
 - Helping draft the entity list structure, the Mermaid ER diagram, `schema.sql`, `sample-data.sql`, the SQL demo scripts for transactions and the sharding demonstration.
+- Drafting `01_index_demo.sql` and the starting structure of `query-analysis.md`, built from the plans and timings I produced myself.
 - Drafting the starting structure of `normalisation.md`, `distributed-design.md` and the README layout, built from my own explanations and answers, which I then reviewed and edited.
 
 **How I verified the output:**
@@ -181,6 +217,7 @@ Load `schema.sql` and `sample-data.sql` from `portfolio-1-database-design`, conn
 - I tested that invalid data is rejected (an unknown region and a negative wallet balance).
 - I carried out the two-window concurrency demo by hand and recorded the lost update and the row-locking fix.
 - I ran the partitioning demonstration and checked from the query plans that only the Kano partition is scanned for a Kano query.
+- I ran `01_index_demo.sql` myself, captured the four query plans, and checked that the index and the date-range rewrite made the queries faster, while the `date()` version did not use the index fully.
 - I answered the normalisation, distributed-systems and design questions in my own words before the write-ups were finalised, and checked them against my schema and my results.
 
-[this declaration will be updated as Portfolios 2 and 4 and the final documentation are completed]
+[this declaration will be updated as Portfolio 4 and the final documentation are completed]
