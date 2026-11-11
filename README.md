@@ -66,6 +66,48 @@ This portfolio models the AOWLYF Dynamics Energy Services database in PostgreSQL
 - `screenshots/psql-tables.png`: all 13 tables created
 - `screenshots/psql-constraint-errors.png`: an invalid region and a negative balance both rejected
 
+### Portfolio 3: Transactions and concurrency
+
+**Folder:** `portfolio-3-transactions-concurrency`
+
+This portfolio uses the PostgreSQL database from Portfolio 1 to show how a token purchase behaves as a transaction. A token purchase changes three things together: it reduces the customer's wallet balance, records the token purchase, and adds kWh to the meter.
+
+#### Files
+
+| File | What it shows |
+|---|---|
+| `01_commit.sql` | A successful token purchase that is committed |
+| `02_rollback.sql` | A failed purchase that is rolled back, leaving no partial changes |
+| `03_concurrency_steps.md` | Two windows buying against the same wallet, the lost update, and the fix |
+| `screenshots/` | Output from each demo |
+
+#### What was tested
+
+1. **Commit.** Wallet 2 bought 10 kWh for 687.40. The wallet fell from 1,563.00 to 875.60, the meter rose from 80 to 90 kWh, and a purchase row was added, all at once.
+2. **Rollback (atomicity).** A purchase of 6,874.00 was attempted with too little money. The wallet's `CHECK (balance >= 0)` rejected it, the transaction was aborted, and `ROLLBACK` left every table unchanged.
+3. **Lost update (isolation problem).** Two windows each read a wallet balance of 26,000.00 and each sold 20,000.00 of electricity. The wallet fell by only 20,000.00 but two purchases were issued, so 20,000.00 of electricity was given away.
+4. **Row locking (fix).** With `SELECT ... FOR UPDATE`, the second window waited for the first to commit, then saw the new balance of 6,000.00 and rolled back. Only one purchase was issued.
+
+#### Concepts demonstrated
+
+- **Atomicity:** demo 2, where the whole purchase succeeds or none of it does.
+- **Consistency:** the wallet and meter constraints (CHECK, UNIQUE) reject invalid states.
+- **Isolation:** demos 3 and 4, where concurrent transactions interfere until row locking is used.
+- **Durability:** committed purchases remain after the transaction ends.
+
+#### Limits
+
+- The concurrency demo was run by hand in two psql windows, not with a load-testing tool.
+- Only the default isolation level (READ COMMITTED) was used.
+
+#### Evidence
+
+- `screenshots/demo1-commit.png`
+- `screenshots/demo2-rollback.png`
+- `screenshots/demo3-lost-update.png`
+- `screenshots/demo3-for-update-waiting.png`
+- `screenshots/demo3-for-update-result.png`
+
 ## 4. Individual technical reflection
 
 [added at the end]
