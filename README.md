@@ -66,6 +66,10 @@ This portfolio models the AOWLYF Dynamics Energy Services database in PostgreSQL
 - `screenshots/psql-tables.png`: all 13 tables created
 - `screenshots/psql-constraint-errors.png`: an invalid region and a negative balance both rejected
 
+### Portfolio 2: Query processing and optimisation
+
+[to be completed]
+
 ### Portfolio 3: Transactions and concurrency
 
 **Folder:** `portfolio-3-transactions-concurrency`
@@ -95,6 +99,14 @@ This portfolio uses the PostgreSQL database from Portfolio 1 to show how a token
 - **Isolation:** demos 3 and 4, where concurrent transactions interfere until row locking is used.
 - **Durability:** committed purchases remain after the transaction ends.
 
+#### How to run
+
+1. Create the database and load `schema.sql` and `sample-data.sql` from `portfolio-1-database-design`, in that order.
+2. Connect with `psql -U postgres -d aowlyf_energy` and run `01_commit.sql`, then `02_rollback.sql`.
+3. Follow `03_concurrency_steps.md` in two terminal windows.
+
+Run `01_commit.sql` only once on a fresh database, because its token code must be unique. To repeat it, reload `schema.sql` and `sample-data.sql` first.
+
 #### Limits
 
 - The concurrency demo was run by hand in two psql windows, not with a load-testing tool.
@@ -108,6 +120,45 @@ This portfolio uses the PostgreSQL database from Portfolio 1 to show how a token
 - `screenshots/demo3-for-update-waiting.png`
 - `screenshots/demo3-for-update-result.png`
 
+### Portfolio 4: NoSQL and advanced data models
+
+[to be completed]
+
+### Portfolio 5: Distributed and cloud database exercise
+
+**Folder:** `portfolio-5-distributed-cloud`
+
+This portfolio describes how the AOWLYF database would be distributed across servers for Lagos, Kano and Ogun, and demonstrates sharding by region in PostgreSQL.
+
+#### Files
+
+| File | What it contains |
+|---|---|
+| `distributed-design.md` | Sharding, replication, CAP choice per table and a failure scenario |
+| `01_partition_by_region.sql` | A demonstration of partitioning readings by `region_id` |
+| `screenshots/` | Output of the demonstration |
+
+#### What was tested
+
+1. Readings were copied into a table partitioned by region, and each row landed in its region's partition.
+2. A query for Kano readings scanned only the Kano partition.
+3. A query without the region scanned all three partitions.
+
+#### How to run
+
+Load `schema.sql` and `sample-data.sql` from `portfolio-1-database-design`, connect with `psql -U postgres -d aowlyf_energy`, then run `01_partition_by_region.sql`.
+
+#### Limits
+
+- The demonstration runs on one server, so the partitions are not on separate machines.
+- Replication, failover and cloud deployment are design discussion only and were not built.
+
+#### Evidence
+
+- `screenshots/partition-rows.png`
+- `screenshots/explain-kano.png`
+- `screenshots/explain-all.png`
+
 ## 4. Individual technical reflection
 
 [added at the end]
@@ -118,4 +169,18 @@ This portfolio uses the PostgreSQL database from Portfolio 1 to show how a token
 
 ## 6. AI Use Declaration
 
-[tool used, what it was used for, and how I verified the output]
+**Tool used:** Claude (Anthropic).
+
+**What it was used for so far:**
+- Explaining course concepts (database design, normalisation, transactions, distributed databases) as a study aid.
+- Helping draft the entity list structure, the Mermaid ER diagram, `schema.sql`, `sample-data.sql`, the SQL demo scripts for transactions and the sharding demonstration.
+- Drafting the starting structure of `normalisation.md`, `distributed-design.md` and the README layout, built from my own explanations and answers, which I then reviewed and edited.
+
+**How I verified the output:**
+- I ran `schema.sql`, `sample-data.sql` and every demo script myself in PostgreSQL 18 and kept screenshots of the results.
+- I tested that invalid data is rejected (an unknown region and a negative wallet balance).
+- I carried out the two-window concurrency demo by hand and recorded the lost update and the row-locking fix.
+- I ran the partitioning demonstration and checked from the query plans that only the Kano partition is scanned for a Kano query.
+- I answered the normalisation, distributed-systems and design questions in my own words before the write-ups were finalised, and checked them against my schema and my results.
+
+[this declaration will be updated as Portfolios 2 and 4 and the final documentation are completed]
