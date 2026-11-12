@@ -77,8 +77,9 @@ This portfolio shows how an index changes the way PostgreSQL runs a query. It bu
 | File | What it contains |
 |---|---|
 | `01_index_demo.sql` | Builds `reading_big`, then runs the four plans |
+| `02_report_queries.sql` | Three report queries on the Portfolio 1 tables, with two plans |
 | `query-analysis.md` | The results and my explanation of them |
-| `screenshots/` | The four query plans |
+| `screenshots/` | The query plans and the report query results |
 
 #### What was tested
 
@@ -89,14 +90,24 @@ This portfolio shows how an index changes the way PostgreSQL runs a query. It bu
 | Filter written as `date(recorded_at) = ...` | Bitmap Heap Scan | 4.394 ms |
 | Same day written as a date range | Index Scan | 0.102 ms |
 
+Report queries on the real tables (`02_report_queries.sql`):
+
+| Situation | Estimated cost | Execution time |
+|---|---|---|
+| Regional consumption query, planner's own choice (sequential scans) | 42.13 | 0.194 ms |
+| Same query with sequential scans switched off for the session | 53.31 | 0.457 ms |
+
+With so few rows, forcing indexes made the query slower. The index only pays off on the large table in the first demo.
+
 #### How to run
 
-From the repository root, connect with `psql -U postgres -d aowlyf_energy`, then run `\pset pager off` followed by `\i portfolio-2-query-optimisation/01_index_demo.sql`.
+From the repository root, connect with `psql -U postgres -d aowlyf_energy`, then run `\pset pager off` followed by `\i portfolio-2-query-optimisation/01_index_demo.sql`. For the report queries, load `schema.sql` and `sample-data.sql` from `portfolio-1-database-design` first, then run `\i portfolio-2-query-optimisation/02_report_queries.sql`.
 
 #### Limits
 
 - Each plan was run once on one machine, so the exact times will differ elsewhere. The pattern is what matters.
-- The data is generated and evenly spread, not real meter data.
+- The data in the first demo is generated and evenly spread, not real meter data.
+- The report queries run on very small sample data, so their timings only show which plan the planner chooses.
 
 #### Evidence
 
@@ -104,6 +115,9 @@ From the repository root, connect with `psql -U postgres -d aowlyf_energy`, then
 - `screenshots/plan-after-index.png`
 - `screenshots/plan-function.png`
 - `screenshots/plan-range.png`
+- `screenshots/query-results.png`
+- `screenshots/plan-small-tables.png`
+- `screenshots/plan-seqscan-off.png`
 
 ### Portfolio 3: Transactions and concurrency
 
@@ -157,7 +171,47 @@ Run `01_commit.sql` only once on a fresh database, because its token code must b
 
 ### Portfolio 4: NoSQL and advanced data models
 
-[to be completed]
+**Folder:** `portfolio-4-nosql`
+
+This portfolio adds two NoSQL stores to the same AOWLYF case study. MongoDB Atlas (document model) holds daily meter telemetry and device events. Neo4j Aura (graph model) holds how customers, premises, meters, faults and technicians connect. PostgreSQL stays the system of record for money and customer data. The design and the reasons are in `nosql-design.md`.
+
+#### Files
+
+| File | What it contains |
+|---|---|
+| `nosql-design.md` | Document and graph models, why they suit the data, graph compared with SQL, limits |
+| `01_meter_telemetry.json` | Four sample documents, one per meter per day, with embedded readings |
+| `02_device_events.json` | Four device events with different fields |
+| `03_mongodb_queries.js` | MongoDB queries, aggregation and index with explain plan |
+| `04_neo4j_load.cypher` | Builds the graph (31 nodes, 32 relationships) |
+| `05_neo4j_queries.cypher` | Graph queries, including the design question and a shortest path |
+| `06_sql_equivalent.sql` | The design question written in SQL, for comparison |
+| `screenshots/` | Results from both databases |
+
+#### What was tested
+
+1. **MongoDB.** One meter's day in a single document, total kWh per region (Lagos 6.22, Kano 0.57, matching Portfolio 2), a low-voltage search that finds AOW-KN-0005, and device events with different fields in one collection.
+2. **MongoDB index.** The same query before and after a compound index on `meter_number` and `date`: a collection scan of 4 documents became an index scan of 1.
+3. **Neo4j.** For a faulty meter, the other meters in its region and the technicians who worked on them (result: Kano, AOW-KN-0005, AOW-KN-0002, Sani Abdullahi), affected customers, work orders per technician, and the shortest path from a customer to a technician.
+
+#### How to run
+
+1. MongoDB Atlas: create a free cluster, create the database `aowlyf_nosql` with the collections `meter_telemetry` and `device_events`, and insert the two JSON files. Run the queries in `03_mongodb_queries.js` in the Data Explorer.
+2. Neo4j Aura: create a free instance, open Query, run `04_neo4j_load.cypher` once as a single statement, then run the queries in `05_neo4j_queries.cypher` one at a time.
+3. Optional: run `06_sql_equivalent.sql` in `aowlyf_energy` to compare with the graph result.
+
+Connection strings, passwords and the Aura credentials file are not stored in this repository.
+
+#### Limits
+
+- The data is a small sample from Portfolio 1, and the three databases are not kept in sync automatically.
+- Both cloud databases are on free tiers. An Aura Free instance is deleted after 30 days of inactivity, so the Cypher scripts are how the graph is rebuilt.
+- At this size SQL and the graph give the same answer. The graph's advantage appears with deeper questions, and I did not test at real scale.
+
+#### Evidence
+
+- MongoDB: `screenshots/mongo-find-meter-day.png`, `mongo-aggregation-region.png`, `mongo-low-voltage.png`, `mongo-device-events.png`, `mongo-explain-before.png`, `mongo-index-created.png`, `mongo-explain.png`
+- Neo4j: `screenshots/neo4j-load-result.png`, `neo4j-graph-overview.png`, `neo4j-design-question.png`, `neo4j-affected-customers.png`, `neo4j-workload.png`, `neo4j-shortest-path.png`
 
 ### Portfolio 5: Distributed and cloud database exercise
 
@@ -209,7 +263,9 @@ Load `schema.sql` and `sample-data.sql` from `portfolio-1-database-design`, conn
 **What it was used for so far:**
 - Explaining course concepts (database design, normalisation, transactions, distributed databases) as a study aid.
 - Helping draft the entity list structure, the Mermaid ER diagram, `schema.sql`, `sample-data.sql`, the SQL demo scripts for transactions and the sharding demonstration.
-- Drafting `01_index_demo.sql` and the starting structure of `query-analysis.md`, built from the plans and timings I produced myself.
+- Drafting `01_index_demo.sql`, `02_report_queries.sql` and the starting structure of `query-analysis.md`, built from the plans and timings I produced myself.
+- Drafting the MongoDB sample data and queries, the Neo4j Cypher scripts, the SQL comparison query and the starting structure of `nosql-design.md`, built from my own answers about the document model, the graph model and the graph question.
+- Step-by-step guidance for setting up MongoDB Atlas and Neo4j Aura.
 - Drafting the starting structure of `normalisation.md`, `distributed-design.md` and the README layout, built from my own explanations and answers, which I then reviewed and edited.
 
 **How I verified the output:**
@@ -217,7 +273,8 @@ Load `schema.sql` and `sample-data.sql` from `portfolio-1-database-design`, conn
 - I tested that invalid data is rejected (an unknown region and a negative wallet balance).
 - I carried out the two-window concurrency demo by hand and recorded the lost update and the row-locking fix.
 - I ran the partitioning demonstration and checked from the query plans that only the Kano partition is scanned for a Kano query.
-- I ran `01_index_demo.sql` myself, captured the four query plans, and checked that the index and the date-range rewrite made the queries faster, while the `date()` version did not use the index fully.
+- I ran `01_index_demo.sql` and `02_report_queries.sql` myself, captured the query plans and results, and checked that the index and the date-range rewrite made the queries faster, while the `date()` version did not use the index fully.
+- I created the MongoDB Atlas cluster and the Neo4j Aura instance myself, loaded the data, ran every query and kept screenshots of the results. I checked that the MongoDB regional totals match my PostgreSQL results from Portfolio 2, and that the SQL version of the graph question returns the same row as the graph query.
 - I answered the normalisation, distributed-systems and design questions in my own words before the write-ups were finalised, and checked them against my schema and my results.
 
-[this declaration will be updated as Portfolio 4 and the final documentation are completed]
+[this declaration will be updated when the final documentation is completed]
