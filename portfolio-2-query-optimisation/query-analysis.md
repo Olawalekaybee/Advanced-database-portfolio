@@ -1,3 +1,9 @@
+---
+noteId: "6ecf8991de9e11f1af14e3682d930608"
+tags: []
+
+---
+
 # Portfolio 2: Query processing and optimisation
 
 ## What I tested
@@ -23,7 +29,7 @@ I ran it with `EXPLAIN (ANALYZE, BUFFERS)` four times. The setup was PostgreSQL 
 | 3 | Same index, but `date(recorded_at) = '2026-10-01'` | Bitmap Heap Scan | 4091.74 | 4.394 ms |
 | 4 | Same index, one day written as a range | Index Scan | 166.45 | 0.102 ms |
 
-Screenshots: `screenshots/plan-before-index.png`, `plan-after-index.png`, `plan-function.png`, `plan-range.png`.
+Screenshots: [plan-before-index.png](screenshots/plan-before-index.png), [plan-after-index.png](screenshots/plan-after-index.png), [plan-function.png](screenshots/plan-function.png), [plan-range.png](screenshots/plan-range.png).
 
 ## 1. Before and after the index
 
@@ -56,3 +62,58 @@ The estimates are close but not exact, because statistics are a summary of the d
 - Timings after the first run benefit from data already being in memory (`shared hit` in the buffers line), which is why they are so small.
 - The data is generated, with evenly spread readings. Real meter data may be less even.
 - An index is not free. It takes disk space and must be updated on every insert, and the meters send a reading every 15 minutes, so on a very busy table I would only keep the indexes I need.
+
+---
+
+# Part B: report queries on the Portfolio 1 tables
+
+`01_index_demo.sql` used a large generated table. `02_report_queries.sql` runs three realistic report queries on the actual Portfolio 1 tables and sample data, so the same case study is used throughout.
+
+## The queries and what they return
+
+| # | Query | Tables joined | Result |
+|---|-------|---------------|--------|
+| 1 | Regional consumption for 10 November | reading, meter, premises, region | Lagos: 6 readings, 6.2200 kWh, average 228.80 V. Kano: 5 readings, 0.5700 kWh, average 138.56 V |
+| 2 | Token purchase history per customer | token_purchase, wallet, customer, meter | 4 purchases, each with the meter, units, rate, amount debited and the wallet balance that is left |
+| 3 | Unresolved faults and their technician | fault_alert, meter, work_order, staff_profile | Alert 1 (outage on AOW-KN-0005) with technician Sani Abdullahi, and alert 2 (abnormal consumption on AOW-LG-0004) with no technician yet |
+
+Two things in the results are worth noting:
+
+- **Kano's average voltage is low (138.56 V).** Meter AOW-KN-0005 reported 0 V during its outage, and those zero readings pull the regional average down. A real report would either exclude zero-voltage readings from the average or flag them as outages.
+- **Query 3 uses a LEFT JOIN on purpose.** Alert 2 has no work order, so an ordinary JOIN would drop it. The LEFT JOIN keeps it and shows a blank technician, which is exactly the alert someone needs to dispatch. The `status <> 'cancelled'` condition sits in the join so the earlier cancelled work order for alert 1 is ignored without removing alert 1.
+
+## Plan for Query 1 with the planner's own choice
+
+| Measure | Value |
+|---|---|
+| Estimated cost | 42.13 |
+| Execution time | 0.194 ms |
+| Buffers read | 46 |
+
+The planner scanned `reading` and `meter` sequentially, joined them with a hash join, and then looked up `premises` and `region` through their primary-key indexes (`premises_pkey`, `region_pkey`). The `reading` filter kept 11 rows out of 11, because every reading in the sample data falls on 10 November.
+
+## Plan with sequential scans switched off
+
+I then ran `SET enable_seqscan = off` for the session and repeated the query. The planner was forced to use indexes, and it chose a Bitmap Heap Scan on `reading` through the `reading_meter_id_recorded_at_key` index and an index scan on `meter` as well.
+
+| Measure | Planner's choice | Seq scans off |
+|---|---|---|
+| Estimated cost | 42.13 | 53.31 |
+| Execution time | 0.194 ms | 0.457 ms |
+| Buffers read | 46 | 71 |
+
+Forcing the indexes made the query slower and more expensive, about 2.4 times slower in time and about 27 percent higher in estimated cost. The tables hold only a few rows, so reading a whole table is cheaper than walking an index and then fetching rows. The planner's original choice was correct, and the estimated costs ranked the two plans in the same order as the real timings.
+
+The index it used in the forced plan starts with `meter_id`, but this query filters only on `recorded_at`. That is a poor fit for the index, which is another reason it is not the better plan.
+
+## What this adds to Part A
+
+Part A showed an index helping when a table has 500,000 rows. Part B shows the reverse: with a few rows, the sequential scan wins, and forcing an index costs more. Together they show that indexing should be decided from the size of the data and the shape of the query, not applied everywhere. For the real system, readings arrive every 15 minutes from every meter, so the readings table is the one that will grow large and benefit from the `(meter_id, recorded_at)` index, while small tables such as `region` and `tariff_band` do not need extra ones.
+
+## Limits
+
+- The sample data is tiny, so these timings are fractions of a millisecond and are not a reliable benchmark. The point is which plan the planner chooses and why.
+- `enable_seqscan = off` was used only to compare plans. It was reset straight afterwards and is not a setting to leave on.
+
+
+Screenshots for Part B: [query-results.png](screenshots/query-results.png), [plan-small-tables.png](screenshots/plan-small-tables.png), [plan-seqscan-off.png](screenshots/plan-seqscan-off.png).

@@ -1,3 +1,9 @@
+---
+noteId: "6ece9f30de9e11f1af14e3682d930608"
+tags: []
+
+---
+
 # Portfolio 1: Entity List
 
 AOWLYF Dynamics Energy Services. Student ID: 301922731.
@@ -90,7 +96,7 @@ AOWLYF Dynamics Energy Services. Student ID: 301922731.
 - **Primary key:** purchase_id
 - **Foreign keys:** wallet_id, meter_id
 - **Relationships:** wallet (many to one); meter (many to one)
-- **Constraints:** token_code NOT NULL UNIQUE; kwh_units CHECK (> 0); rate_per_kwh CHECK (> 0); amount_debited CHECK (> 0); amount_debited = kwh_units * rate_per_kwh (verify in transaction)
+- **Constraints:** token_code NOT NULL UNIQUE; kwh_units CHECK (> 0); rate_per_kwh CHECK (> 0); amount_debited CHECK (> 0); CHECK (amount_debited = ROUND(kwh_units * rate_per_kwh, 2))
 
 ### region
 

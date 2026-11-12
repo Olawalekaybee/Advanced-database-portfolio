@@ -1,21 +1,27 @@
+---
+noteId: "6ecf8993de9e11f1af14e3682d930608"
+tags: []
+
+---
+
 # Demo 3: concurrency (two windows, same wallet)
 
-Wallet 4 holds 26,000.00. Two customers' purchases of 20,000.00 each are processed at the same time. Only one of them can really afford it.
+This demo tests what happens when two purchases hit the same wallet at the same moment. Wallet 4 holds 26,000.00, and two purchases of 20,000.00 each arrive together. Only one of them can really be afforded.
 
-Open two terminals in VS Code (use the split terminal button) and start psql in each:
+I opened two terminals in VS Code (split terminal) and started psql in each:
 
     psql -U postgres -d aowlyf_energy
 
-Call them Window A and Window B. Do the steps in the exact order shown, switching windows as indicated.
+I call them Window A and Window B. The steps below are in the exact order I ran them, switching windows as shown.
 
 ## Part 1: the problem (no locking)
 
-Reset first (in Window A):
+I reset the data first, in Window A:
 
     \i portfolio-1-database-design/schema.sql
     \i portfolio-1-database-design/sample-data.sql
 
-| Step | Window | Type this |
+| Step | Window | What I ran |
 |---|---|---|
 | 1 | A | `BEGIN;` |
 | 2 | A | `SELECT balance FROM wallet WHERE wallet_id = 4;` (shows 26000.00) |
@@ -28,20 +34,20 @@ Reset first (in Window A):
 | 9 | B | `INSERT INTO token_purchase (wallet_id, meter_id, kwh_units, rate_per_kwh, amount_debited, token_code) VALUES (4, 4, 200, 100, 20000.00, 'BBBB-0001');` |
 | 10 | B | `COMMIT;` |
 
-Check (either window):
+Then I checked, in either window:
 
     SELECT balance FROM wallet WHERE wallet_id = 4;
     SELECT token_code, amount_debited FROM token_purchase WHERE wallet_id = 4;
 
-Result: the wallet fell by only 20,000.00 (26,000.00 to 6,000.00), but two purchases of 20,000.00 were issued. Both windows read the old balance, and the second write overwrote the first. This is a **lost update**. 20,000.00 worth of electricity was given away.
+Result: the wallet fell by only 20,000.00 (26,000.00 to 6,000.00), but two purchases of 20,000.00 were issued. Both windows read the old balance, and the second write overwrote the first. This is a **lost update**, and 20,000.00 worth of electricity was given away.
 
-Take a screenshot of the check output.
+Screenshot: [demo3-lost-update.png](screenshots/demo3-lost-update.png).
 
 ## Part 2: the fix (row locking with FOR UPDATE)
 
-Reset again (in Window A) with the same two `\i` lines as above. Then:
+I reset again in Window A with the same two `\i` lines, then ran:
 
-| Step | Window | Type this |
+| Step | Window | What I ran |
 |---|---|---|
 | 1 | A | `BEGIN;` |
 | 2 | A | `SELECT balance FROM wallet WHERE wallet_id = 4 FOR UPDATE;` (26000.00, and the row is now locked) |
@@ -51,12 +57,13 @@ Reset again (in Window A) with the same two `\i` lines as above. Then:
 | 6 | A | `INSERT INTO token_purchase (wallet_id, meter_id, kwh_units, rate_per_kwh, amount_debited, token_code) VALUES (4, 4, 200, 100, 20000.00, 'AAAA-0001');` |
 | 7 | A | `COMMIT;` |
 | 8 | B | Window B now unfreezes and shows balance **6000.00**. |
-| 9 | B | B sees only 6,000.00 left, which is less than 20,000.00, so it stops: `ROLLBACK;` |
+| 9 | B | Only 6,000.00 is left, which is less than 20,000.00, so I stopped the purchase with `ROLLBACK;` |
 
-Check: the wallet is 6,000.00 and only one new purchase exists. The second customer is told "insufficient funds". Take a screenshot of Window B waiting (step 4) and of the result in step 8.
+Result: the wallet is 6,000.00 and only one new purchase exists. In a real system the second customer would be told "insufficient funds". Screenshots: Window B waiting ([demo3-for-update-waiting.png](screenshots/demo3-for-update-waiting.png)) and the result ([demo3-for-update-result.png](screenshots/demo3-for-update-result.png)).
 
-## What to write in your portfolio
+## What this shows
 
-- Problem: two transactions read the same balance and both wrote a result based on it (lost update).
-- Control mechanism: `SELECT ... FOR UPDATE` locks the row, so the second transaction waits and then sees the updated balance. This is pessimistic locking and gives isolation.
-- Link to ACID: this demonstrates the **I** (isolation). The earlier rollback demo shows the **A** (atomicity).
+- **The problem:** two transactions read the same balance and both wrote a result based on it, so one update was lost.
+- **The control:** `SELECT ... FOR UPDATE` locks the row. The second transaction waits, then sees the updated balance. This is pessimistic locking.
+- **Link to ACID:** this demo is about the **I** (isolation). The earlier rollback demo ([demo2-rollback.png](screenshots/demo2-rollback.png)) is about the **A** (atomicity).
+- **Limit:** I only used the default isolation level, READ COMMITTED. I did not test REPEATABLE READ or SERIALIZABLE.

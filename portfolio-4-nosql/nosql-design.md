@@ -1,3 +1,9 @@
+---
+noteId: "6ecfb0a1de9e11f1af14e3682d930608"
+tags: []
+
+---
+
 # Portfolio 4: NoSQL and advanced data models
 
 This portfolio extends the AOWLYF Dynamics Energy Services case study with two NoSQL stores: MongoDB Atlas (document model) and Neo4j Aura (graph model). PostgreSQL stays the system of record for money and customer data. The NoSQL stores take the work that suits them.
@@ -34,11 +40,11 @@ A meter sends a reading every 15 minutes, so a full day is up to 96 readings. St
 
 | Query | Result | Evidence |
 |---|---|---|
-| One meter's day (`meter_number` and `date`) | One document with its embedded readings | `mongo-find-meter-day.png` |
-| Total kWh per region (`$match`, `$group`, `$sort`) | Lagos 6.22, Kano 0.57 | `mongo-aggregation-region.png` |
-| Readings with voltage below 100 | Only AOW-KN-0005 | `mongo-low-voltage.png` |
-| All device events | Four events with different fields | `mongo-device-events.png` |
-| Same query before and after a compound index on `meter_number` and `date` | COLLSCAN (4 documents examined) became IXSCAN (1 document examined) | `mongo-explain-before.png`, `mongo-index-created.png`, `mongo-explain.png` |
+| One meter's day (`meter_number` and `date`) | One document with its embedded readings | [mongo-find-meter-day.png](screenshots/mongo-find-meter-day.png) |
+| Total kWh per region (`$match`, `$group`, `$sort`) | Lagos 6.22, Kano 0.57 | [mongo-aggregation-region.png](screenshots/mongo-aggregation-region.png) |
+| Readings with voltage below 100 | Only AOW-KN-0005 | [mongo-low-voltage.png](screenshots/mongo-low-voltage.png) |
+| All device events | Four events with different fields | [mongo-device-events.png](screenshots/mongo-device-events.png) |
+| Same query before and after a compound index on `meter_number` and `date` | COLLSCAN (4 documents examined) became IXSCAN (1 document examined) | [mongo-explain-before.png](screenshots/mongo-explain-before.png), [mongo-index-created.png](screenshots/mongo-index-created.png), [mongo-explain.png](screenshots/mongo-explain.png) |
 
 The regional totals are the same as Query 1 in Portfolio 2 on PostgreSQL (Lagos 6.2200, Kano 0.5700), so the two stores agree. The index result is the same idea as Portfolio 2: an index lets the database go straight to the right document. With four documents the time is zero either way, so what matters is the change in the plan.
 
@@ -74,7 +80,7 @@ I first planned to make each reading a node as well. I removed it, because a met
 
 **For a faulty meter, which other meters are in the same region, and which technicians have worked on faults on them?**
 
-The meter that is faulty is AOW-KN-0005 in Kano. The graph query returns one row: Kano, faulty meter AOW-KN-0005, other meter AOW-KN-0002, technician Sani Abdullahi. Cancelled work orders are ignored, so Bashir Garba does not appear. The result is in `neo4j-design-question.png`.
+The meter that is faulty is AOW-KN-0005 in Kano. The graph query returns one row: Kano, faulty meter AOW-KN-0005, other meter AOW-KN-0002, technician Sani Abdullahi. Cancelled work orders are ignored, so Bashir Garba does not appear. The result is in [neo4j-design-question.png](screenshots/neo4j-design-question.png).
 
 I first thought of "other meters on the same premises", but in my sample data every premises has exactly one meter, so that query would return nothing. Asking about the same region gives a real answer and one more hop through the graph.
 
@@ -82,12 +88,12 @@ I first thought of "other meters on the same premises", but in my sample data ev
 
 The same question in SQL (`06_sql_equivalent.sql`) joins eight table references: meter twice, premises twice, region, fault_alert, work_order and staff_profile. I ran it on PostgreSQL and it returns the same row. The Cypher version is one connected pattern that reads like the question: a fault on a meter, in a region, with other meters in that region, and the staff on their faults.
 
-At this size both work, and I am not claiming the graph is faster here. The graph's advantage grows with questions that follow connections to unknown depth. The shortest path query shows this: from the customer Musa Ibrahim to the technician Sani Abdullahi, Neo4j finds the route (Musa, his premises at 3 Bompai Road, Kano, Sani) in three steps, with no joins written (`neo4j-shortest-path.png`). In SQL, a path of unknown length needs a recursive query.
+At this size both work, and I am not claiming the graph is faster here. The graph's advantage grows with questions that follow connections to unknown depth. The shortest path query shows this: from the customer Musa Ibrahim to the technician Sani Abdullahi, Neo4j finds the route (Musa, his premises at 3 Bompai Road, Kano, Sani) in three steps, with no joins written ([neo4j-shortest-path.png](screenshots/neo4j-shortest-path.png)). In SQL, a path of unknown length needs a recursive query.
 
 ### Other queries
 
-- Customers affected by an unresolved fault: Funke Adeyemi (AOW-LG-0004, abnormal consumption, open) and Musa Ibrahim (AOW-KN-0005, outage, investigating) (`neo4j-affected-customers.png`).
-- Work orders per technician: Sani Abdullahi 2, Bashir Garba 1 (`neo4j-workload.png`).
+- Customers affected by an unresolved fault: Funke Adeyemi (AOW-LG-0004, abnormal consumption, open) and Musa Ibrahim (AOW-KN-0005, outage, investigating) ([neo4j-affected-customers.png](screenshots/neo4j-affected-customers.png)).
+- Work orders per technician: Sani Abdullahi 2, Bashir Garba 1 ([neo4j-workload.png](screenshots/neo4j-workload.png)).
 
 ## 4. Choosing the right store
 

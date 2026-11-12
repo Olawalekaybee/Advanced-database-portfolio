@@ -1,3 +1,9 @@
+---
+noteId: "6ecfb0a0de9e11f1af14e3682d930608"
+tags: []
+
+---
+
 # Distributed Design for AOWLYF Dynamics Energy Services
 
 Student ID: 301922731
@@ -13,9 +19,9 @@ The trade-off is that a query across all regions, such as a national consumption
 ### Demonstration
 
 `01_partition_by_region.sql` splits a copy of the readings into three partitions, one per region, using PostgreSQL list partitioning on `region_id`. It shows three things:
-- Each reading is stored in the partition for its region (`partition-rows.png`).
-- A query for Kano readings scans only the Kano partition (`explain-kano.png`).
-- A query that filters on `meter_id` alone has to scan all three partitions (`explain-all.png`).
+- Each reading is stored in the partition for its region ([partition-rows.png](screenshots/partition-rows.png)).
+- A query for Kano readings scans only the Kano partition ([explain-kano.png](screenshots/explain-kano.png)).
+- A query that filters on `meter_id` alone has to scan all three partitions ([explain-all.png](screenshots/explain-all.png)).
 
 This demonstration runs on one PostgreSQL server. It shows the idea of fragmentation, but the partitions are not on separate machines, so it does not test network failure or replication.
 

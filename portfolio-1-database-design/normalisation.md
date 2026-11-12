@@ -1,3 +1,9 @@
+---
+noteId: "6ecf8992de9e11f1af14e3682d930608"
+tags: []
+
+---
+
 # Normalisation
 
 AOWLYF Dynamics Energy Services. Student ID: 301922731.
@@ -42,7 +48,7 @@ Every table has a primary key. Where a table has a second candidate key, I decla
 
 **amount_debited in token_purchase.** It could be calculated from the units and the rate, but I store it so each billing record is complete. A CHECK constraint rejects any row where it does not equal ROUND(kwh_units * rate_per_kwh, 2).
 
-**unit_balance_kwh and wallet.balance.** These are running totals kept for quick reads, and CHECK (>= 0) stops them going negative. I tested that a negative wallet balance is rejected (see `screenshots/psql-constraint-errors.png`). Updating them together with a payment or token purchase in one transaction belongs to Portfolio 3 and is not done here.
+**unit_balance_kwh and wallet.balance.** These are running totals kept for quick reads, and CHECK (>= 0) stops them going negative. I tested that a negative wallet balance is rejected (see [psql-constraint-errors.png](screenshots/psql-constraint-errors.png)). Updating them together with a payment or token purchase in one transaction belongs to Portfolio 3 and is not done here.
 
 **Technician-only work orders.** The rule that a work order can only go to a staff member whose role is technician is not enforced by `schema.sql`. It would need application code or a trigger, and neither is built yet.
 
