@@ -1,9 +1,3 @@
----
-noteId: "979f5aa3dea111f1af14e3682d930608"
-tags: []
-
----
-
 # Portfolio 5: Distributed and Cloud Database Exercise
 
 Student: Balogun Kabiru | Student ID: 301922731 | Case study: AOWLYF Dynamics Energy Services

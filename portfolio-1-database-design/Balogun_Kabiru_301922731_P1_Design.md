@@ -1,9 +1,3 @@
----
-noteId: "979f3392dea111f1af14e3682d930608"
-tags: []
-
----
-
 # Portfolio 1: Entity List
 
 AOWLYF Dynamics Energy Services. Student ID: 301922731.

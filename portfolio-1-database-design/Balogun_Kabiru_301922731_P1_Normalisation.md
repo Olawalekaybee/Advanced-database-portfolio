@@ -1,9 +1,3 @@
----
-noteId: "979f3390dea111f1af14e3682d930608"
-tags: []
-
----
-
 # Normalisation
 
 AOWLYF Dynamics Energy Services. Student ID: 301922731.

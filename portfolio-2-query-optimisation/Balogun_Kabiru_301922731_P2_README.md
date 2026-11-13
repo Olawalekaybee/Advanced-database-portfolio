@@ -1,9 +1,3 @@
----
-noteId: "979f3395dea111f1af14e3682d930608"
-tags: []
-
----
-
 # Portfolio 2: Query Processing and Optimisation
 
 Student: Balogun Kabiru | Student ID: 301922731 | Case study: AOWLYF Dynamics Energy Services

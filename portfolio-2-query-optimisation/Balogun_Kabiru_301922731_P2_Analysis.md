@@ -1,9 +1,3 @@
----
-noteId: "979f3394dea111f1af14e3682d930608"
-tags: []
-
----
-
 # Portfolio 2: Query processing and optimisation
 
 ## What I tested

@@ -1,9 +1,3 @@
----
-noteId: "97b839d1dea111f1af14e3682d930608"
-tags: []
-
----
-
 # Portfolio 3: Transactions and Concurrency
 
 Student: Balogun Kabiru | Student ID: 301922731 | Case study: AOWLYF Dynamics Energy Services

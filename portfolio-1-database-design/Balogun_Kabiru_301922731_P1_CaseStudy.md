@@ -1,9 +1,3 @@
----
-noteId: "979f0c80dea111f1af14e3682d930608"
-tags: []
-
----
-
 # Case Study: AOWLYF Dynamics Energy Services
 
 AOWLYF Dynamics Energy Services is a simulated electricity distribution company. Its regional offices serve Lagos, Kano and Ogun states. Prepaid electricity reaches customers through smart meters, each of which sends a reading to a central platform every fifteen minutes. Every reading records the energy consumed in kilowatt-hours, the voltage, the current and the time it was taken.

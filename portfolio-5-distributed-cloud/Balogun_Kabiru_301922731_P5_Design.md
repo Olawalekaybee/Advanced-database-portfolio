@@ -1,9 +1,3 @@
----
-noteId: "979f5aa2dea111f1af14e3682d930608"
-tags: []
-
----
-
 # Distributed Design for AOWLYF Dynamics Energy Services
 
 Student ID: 301922731

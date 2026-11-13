@@ -1,9 +1,3 @@
----
-noteId: "97b839d0dea111f1af14e3682d930608"
-tags: []
-
----
-
 # Demo 3: concurrency (two windows, same wallet)
 
 This demo tests what happens when two purchases hit the same wallet at the same moment. Wallet 4 holds 26,000.00, and two purchases of 20,000.00 each arrive together. Only one of them can really be afforded.

@@ -1,9 +1,3 @@
----
-noteId: "979f3391dea111f1af14e3682d930608"
-tags: []
-
----
-
 # ER Diagram
 
 Entity-relationship diagram for AOWLYF Dynamics Energy Services (Mermaid). GitHub renders it automatically.

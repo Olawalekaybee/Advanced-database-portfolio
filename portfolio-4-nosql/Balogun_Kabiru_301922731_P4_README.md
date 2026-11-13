@@ -1,9 +1,3 @@
----
-noteId: "979f5aa1dea111f1af14e3682d930608"
-tags: []
-
----
-
 # Portfolio 4: NoSQL and Advanced Data Models
 
 Student: Balogun Kabiru | Student ID: 301922731 | Case study: AOWLYF Dynamics Energy Services

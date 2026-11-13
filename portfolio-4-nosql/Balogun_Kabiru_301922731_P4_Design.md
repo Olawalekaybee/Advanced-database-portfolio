@@ -1,9 +1,3 @@
----
-noteId: "979f5aa0dea111f1af14e3682d930608"
-tags: []
-
----
-
 # Portfolio 4: NoSQL and advanced data models
 
 This portfolio extends the AOWLYF Dynamics Energy Services case study with two NoSQL stores: MongoDB Atlas (document model) and Neo4j Aura (graph model). PostgreSQL stays the system of record for money and customer data. The NoSQL stores take the work that suits them.

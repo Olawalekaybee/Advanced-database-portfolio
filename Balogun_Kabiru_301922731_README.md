@@ -1,8 +1,3 @@
----
-noteId: "979e4930dea111f1af14e3682d930608"
-tags: []
-
----
 
 # MIT 8103 Advanced Database Systems Portfolio
 
