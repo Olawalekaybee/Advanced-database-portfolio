@@ -7,7 +7,7 @@ Student ID: 301922731
 
 Institution: MIVA Open University, Master of Information Technology
 
-Final summary: see `Balogun_Kabiru_301922731_FinalSummary.pdf` (also submitted on the LMS).
+Final summary: see `Balogun_Kabiru_301922731_FinalSummary.pdf`.
 
 ## Case study
 
