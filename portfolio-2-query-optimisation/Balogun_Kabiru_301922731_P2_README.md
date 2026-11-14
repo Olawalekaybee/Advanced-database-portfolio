@@ -2,7 +2,7 @@
 
 Student: Balogun Kabiru | Student ID: 301922731 | Case study: AOWLYF Dynamics Energy Services
 
-In this portfolio I look at how an index changes the way PostgreSQL runs a query. It builds a separate table, `reading_big`, with 500,000 meter readings (50 meters, one reading every 15 minutes) and compares four query plans using `EXPLAIN (ANALYZE, BUFFERS)`. The Portfolio 1 tables are not touched.
+In this portfolio I look at how an index changes the way PostgreSQL runs a query. It builds a separate table, `reading_big`, with 500,000 meter readings (50 meters, one reading every 15 minutes) and compares four query plans using `EXPLAIN (ANALYZE, BUFFERS)`. I also run three report queries on the Portfolio 1 tables and compare the planner's own plan with a forced index plan. The Portfolio 1 data is only read, not changed.
 
 ## Files
 
@@ -33,7 +33,7 @@ With so few rows, forcing indexes made the query slower. The index only pays off
 
 ## How to run
 
-From the repository root, connect with `psql -U postgres -d aowlyf_energy`, then run `\pset pager off` followed by `\i portfolio-2-query-optimisation/Balogun_Kabiru_301922731_P2_Optimisation.sql`. For the report queries, load `Balogun_Kabiru_301922731_P1_Schema.sql` and `Balogun_Kabiru_301922731_P1_SampleData.sql` from `portfolio-1-database-design` (one folder up) first, then run `\i portfolio-2-query-optimisation/Balogun_Kabiru_301922731_P2_Queries.sql`.
+From the repository root, connect with `psql -U postgres -d aowlyf_energy`, then run `\pset pager off` followed by `\i portfolio-2-query-optimisation/Balogun_Kabiru_301922731_P2_Optimisation.sql`. For the report queries, load `Balogun_Kabiru_301922731_P1_Schema.sql` and `Balogun_Kabiru_301922731_P1_SampleData.sql` from the `portfolio-1-database-design` folder first, then run `\i portfolio-2-query-optimisation/Balogun_Kabiru_301922731_P2_Queries.sql`.
 
 ## Limits
 

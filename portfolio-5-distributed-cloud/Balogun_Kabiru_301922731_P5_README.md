@@ -20,7 +20,7 @@ In this portfolio I describe how the AOWLYF database would be spread across serv
 
 ## How to run
 
-Load `Balogun_Kabiru_301922731_P1_Schema.sql` and `Balogun_Kabiru_301922731_P1_SampleData.sql` from `portfolio-1-database-design` (one folder up), connect with `psql -U postgres -d aowlyf_energy`, then run `Balogun_Kabiru_301922731_P5_Partitioning.sql`.
+Load `Balogun_Kabiru_301922731_P1_Schema.sql` and `Balogun_Kabiru_301922731_P1_SampleData.sql` from the `portfolio-1-database-design` folder, connect with `psql -U postgres -d aowlyf_energy`, then run `Balogun_Kabiru_301922731_P5_Partitioning.sql`.
 
 ## Limits
 

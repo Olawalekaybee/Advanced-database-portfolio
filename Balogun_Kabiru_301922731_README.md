@@ -54,10 +54,12 @@ If this were a real system, the first thing I would add is a process to keep Pos
 ## References
 
 - MIVA Open University (2026). *MIT 8103 Advanced Database Systems*, course text (Study Sessions 1, 2, 4 and 5) and lecture slides.
-- MIVA Open University (2026). *MIT 8103 First Semester Continuous Assessment, September Cohort*, assignment brief.
 - PostgreSQL Global Development Group. PostgreSQL documentation: EXPLAIN, Using EXPLAIN, Indexes, Transaction Isolation, Explicit Locking, Table Partitioning. https://www.postgresql.org/docs/ (accessed November 2026).
 - MongoDB, Inc. MongoDB Manual: Aggregation, Indexes, Explain results. https://www.mongodb.com/docs/manual/ (accessed November 2026).
 - Neo4j, Inc. Cypher Manual and Neo4j Aura documentation. https://neo4j.com/docs/ (accessed November 2026).
+- Mermaid. Entity relationship diagram syntax, used for the ER diagram. https://mermaid.js.org/syntax/entityRelationshipDiagram.html (accessed November 2026).
+
+All sample data in this repository (customers, meters, readings, payments and staff) is fictional and was created for this portfolio. No real customer data was used.
 
 ## AI Use Declaration
 
@@ -68,7 +70,6 @@ If this were a real system, the first thing I would add is a process to keep Pos
 - Drafting the starting version of the entity list, the Mermaid ER diagram, `Balogun_Kabiru_301922731_P1_Schema.sql`, `Balogun_Kabiru_301922731_P1_SampleData.sql`, the transaction demo scripts and the partitioning demo.
 - Drafting `Balogun_Kabiru_301922731_P2_Optimisation.sql` and `Balogun_Kabiru_301922731_P2_Queries.sql`, the MongoDB sample data and queries, the Neo4j Cypher scripts and the SQL comparison query.
 - Helping me structure `Balogun_Kabiru_301922731_P1_Normalisation.md`, `Balogun_Kabiru_301922731_P2_Analysis.md`, `Balogun_Kabiru_301922731_P4_Design.md`, `Balogun_Kabiru_301922731_P5_Design.md`, this README and the final document, using my own answers, results and explanations.
-- Step-by-step guidance for setting up PostgreSQL tooling, MongoDB Atlas and Neo4j Aura, and for Git and GitHub.
 
 **How I checked the output:**
 - I ran `Balogun_Kabiru_301922731_P1_Schema.sql`, `Balogun_Kabiru_301922731_P1_SampleData.sql` and every demo script myself in PostgreSQL 18 and kept screenshots of the results.
@@ -78,4 +79,3 @@ If this were a real system, the first thing I would add is a process to keep Pos
 - I ran `Balogun_Kabiru_301922731_P2_Optimisation.sql` and `Balogun_Kabiru_301922731_P2_Queries.sql`, captured the query plans and results, and checked that the index and the date-range rewrite made the queries faster, while the `date()` version did not use the index fully.
 - I created the MongoDB Atlas cluster and the Neo4j Aura instance myself, loaded the data, ran every query and kept screenshots. I checked that the MongoDB regional totals match my PostgreSQL results from Portfolio 2, and that the SQL version of the graph question returns the same row as the graph query.
 - I answered the normalisation, distributed-systems and design questions in my own words before the write-ups were finalised, and checked them against my schema and my results.
-- The reflection above is based on my own answers, and I can explain every file in this repository.

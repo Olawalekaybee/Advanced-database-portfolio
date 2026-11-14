@@ -25,11 +25,11 @@ This portfolio uses the PostgreSQL database from Portfolio 1 to show how a token
 - **Atomicity:** demo 2, where the whole purchase succeeds or none of it does.
 - **Consistency:** the wallet and meter constraints (CHECK, UNIQUE) reject invalid states.
 - **Isolation:** demos 3 and 4, where concurrent transactions interfere until row locking is used.
-- **Durability:** committed purchases remain after the transaction ends.
+- **Durability:** a committed purchase is saved permanently and is still there in a new session. I did not test a server crash.
 
 ## How to run
 
-1. Create the database and load `Balogun_Kabiru_301922731_P1_Schema.sql` and `Balogun_Kabiru_301922731_P1_SampleData.sql` from `portfolio-1-database-design` (one folder up), in that order.
+1. Create the database and load `Balogun_Kabiru_301922731_P1_Schema.sql` and `Balogun_Kabiru_301922731_P1_SampleData.sql` from the `portfolio-1-database-design` folder, in that order.
 2. Connect with `psql -U postgres -d aowlyf_energy` and run `Balogun_Kabiru_301922731_P3_Commit.sql`, then `Balogun_Kabiru_301922731_P3_Rollback.sql`.
 3. Follow `Balogun_Kabiru_301922731_P3_Concurrency.md` in two terminal windows.
 
